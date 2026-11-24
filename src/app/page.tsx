@@ -45,6 +45,7 @@ export default function Home() {
     () => data.categories.find((category) => category.name === selectedCategory)?.courses ?? [],
     [data.categories, selectedCategory],
   );
+  const categoriesWithCourses = data.categories.filter((category) => category.courses.length > 0);
 
   function closeModal() {
     setModal(null);
@@ -203,8 +204,8 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid">
-            {data.categories.length === 0 && <div className="card empty">현재 등록된 과목이 없습니다.</div>}
-            {data.categories.map((group) => <button key={group.name} className="card category-card" onClick={() => setSelectedCategory(group.name)}>
+            {categoriesWithCourses.length === 0 && <div className="card empty">현재 등록된 과목이 없습니다.</div>}
+            {categoriesWithCourses.map((group) => <button key={group.name} className="card category-card" onClick={() => setSelectedCategory(group.name)}>
               <span>{group.name}<small className="muted" style={{ display: "block", marginTop: 6 }}>{group.courses.length}개 과목</small></span><span aria-hidden="true">→</span>
             </button>)}
           </div>
@@ -302,10 +303,11 @@ function StatusContent({ data, busy, message, student, setStudent, success, veri
   setSelected: (value: string | null) => void; refresh: () => void;
 }) {
   if (!success) return <StudentForm student={student} setStudent={setStudent} busy={busy} message={message} onSubmit={verify} submitLabel="현황 확인" />;
-  const courses = data.categories.find((group) => group.name === selected)?.courses ?? [];
+  const categoriesWithCourses = data.categories.filter((group) => group.courses.length > 0);
+  const courses = categoriesWithCourses.find((group) => group.name === selected)?.courses ?? [];
   return <>
     <div className="row space-between"><p className="muted">범주별 신청 현황</p><button className="button ghost" onClick={refresh}>새로고침</button></div>
-    {!selected ? <div className="grid">{data.categories.map((group) =>
+    {!selected ? <div className="grid">{categoriesWithCourses.map((group) =>
       <button key={group.name} className="card category-card" onClick={() => setSelected(group.name)}><span>{group.name}</span><span>→</span></button>)}</div>
       : <><div className="section-title"><h3>{selected}</h3><button className="button ghost" onClick={() => setSelected(null)}>범주 목록</button></div>
         <div className="table-wrap"><table><thead><tr><th>과목명</th><th>신청 인원 / 제한 인원</th><th>신청 상태</th><th>일시</th></tr></thead><tbody>
